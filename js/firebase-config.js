@@ -3,7 +3,7 @@
  * Замените значения на свои из Firebase Console
  */
 
-const firebaseConfig = {
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBqbexDcbA_g82ZTlXCur6O8Ap9kGkLt6A",
   authDomain: "canvaschat-52708.firebaseapp.com",
   projectId: "canvaschat-52708",
