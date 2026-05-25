@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self' https://*.firebaseapp.com https://*.googleapis.com https://*.gstatic.com https://*.firebasedatabase.app; script-src 'self' 'unsafe-inline' https://*.gstatic.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://*.firebaseio.com https://*.firebasedatabase.app https://*.googleapis.com wss://*.firebaseio.com wss://*.firebasedatabase.app;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>CanvasChat — Холст</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="apple-touch-icon" href="../favicon.svg">
+    <meta name="theme-color" content="#6C5CE7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="app-body">
+
+    <!-- Загрузочный экран -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <svg width="48" height="48" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#loadGrad)"/>
+                    <path d="M8 20C8 20 12 12 16 12C20 12 24 20 24 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                    <circle cx="16" cy="14" r="3" fill="white" opacity="0.9"/>
+                    <defs><linearGradient id="loadGrad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#A29BFE"/></linearGradient></defs>
+                </svg>
+            </div>
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Загрузка CanvasChat...</p>
+        </div>
+    </div>
+
+    <!-- Верхняя панель -->
+    <header class="app-topbar">
+        <div class="topbar-left">
+            <button class="btn-icon mobile-only" id="mobileMenuToggle" aria-label="Меню">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5H17M3 10H17M3 15H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="logo-group">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
+                        <path d="M8 20C8 20 12 12 16 12C20 12 24 20 24 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                        <circle cx="16" cy="14" r="3" fill="white" opacity="0.9"/>
+                        <defs><linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#A29BFE"/></linearGradient></defs>
+                    </svg>
+                </div>
+                <div class="topbar-brand desktop-only">
+                    <span class="logo-text">CanvasChat</span>
+                    <span class="topbar-company">Проект <a href="https://nuller.ru" target="_blank" rel="noopener noreferrer">NULLER</a></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="topbar-center">
+            <button class="btn-icon" id="zoomOutBtn" title="Уменьшить" aria-label="Уменьшить масштаб">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 8H10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12.5 12.5L16 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+            <span class="zoom-display" id="zoomDisplay">100%</span>
+            <button class="btn-icon" id="zoomInBtn" title="Увеличить" aria-label="Увеличить масштаб">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 8H10.5M8 5.5V10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12.5 12.5L16 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+            <button class="btn-icon" id="zoomResetBtn" title="Сбросить" aria-label="Сбросить масштаб">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9H11M9 7V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+
+            <div class="topbar-separator desktop-only"></div>
+
+            <!-- Таймер очистки холста -->
+            <div class="canvas-timer desktop-only" id="canvasTimer" title="До очистки холста">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5V8L10.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span id="timerText">10:00</span>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Лимит краски -->
+            <div class="paint-limit" id="paintLimit" title="Остаток краски на сегодня">
+                <div class="paint-icon">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 12L8 3L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9H10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+                <div class="paint-bar">
+                    <div class="paint-fill" id="paintFill" style="width: 100%"></div>
+                </div>
+                <span class="paint-text" id="paintText">100%</span>
+            </div>
+
+            <!-- Планы -->
+            <button class="btn-plans" id="plansBtn" title="Планы и подписки">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L10 6H14L11 9L12 13L8 11L4 13L5 9L2 6H6L8 2Z" fill="currentColor"/></svg>
+                <span class="desktop-only">Планы</span>
+            </button>
+
+            <button class="btn-icon" id="toggleSidebarBtn" title="Боковая панель" aria-label="Боковая панель">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M11 2V16" stroke="currentColor" stroke-width="1.5"/></svg>
+            </button>
+
+            <!-- Профиль -->
+            <div class="profile-wrapper" id="profileWrapper">
+                <button class="user-avatar-btn" id="userAvatarBtn" aria-label="Профиль">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="avatar-status online"></div>
+                </button>
+
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-dropdown-header">
+                        <div class="profile-avatar-edit" id="profileAvatarEdit">
+                            <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+                            <div class="avatar-edit-overlay">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M12 2L14 4L5 13H3V11L12 2Z" stroke="white" stroke-width="1.5"/></svg>
+                            </div>
+                            <input type="file" id="avatarFileInput" accept="image/*" hidden>
+                        </div>
+                        <div class="profile-info-edit">
+                            <div class="profile-name-wrapper">
+                                <span class="profile-dropdown-name" id="profileName">Пользователь</span>
+                                <button class="btn-icon-sm" id="editNameBtn" title="Изменить имя">
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M9 1L11 3L4 10H2V8L9 1Z" stroke="currentColor" stroke-width="1.2"/></svg>
+                                </button>
+                            </div>
+                            <span class="profile-dropdown-email" id="profileEmail">user@email.com</span>
+                        </div>
+                    </div>
+
+                    <!-- Редактирование имени (скрыто по умолчанию) -->
+                    <div class="profile-edit-name hidden" id="profileEditName">
+                        <input type="text" id="newNameInput" placeholder="Новый никнейм" maxlength="20" minlength="2">
+                        <div class="profile-edit-actions">
+                            <button class="btn-sm btn-ghost" id="cancelNameBtn">Отмена</button>
+                            <button class="btn-sm btn-primary" id="saveNameBtn">Сохранить</button>
+                        </div>
+                    </div>
+
+                    <div class="profile-dropdown-menu">
+                        <!-- Тема -->
+                        <div class="dropdown-item theme-toggle">
+                            <span class="dropdown-item-icon">🌙</span>
+                            <span>Тёмная тема</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="themeToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <button class="dropdown-item" id="plansDropdownBtn">
+                            <span class="dropdown-item-icon">⭐</span>
+                            <span>Планы и подписки</span>
+                        </button>
+
+                        <button class="dropdown-item" id="resetOnboardingBtn">
+                            <span class="dropdown-item-icon">📖</span>
+                            <span>Показать гайд</span>
+                        </button>
+
+                        <button class="dropdown-item" id="resetViewBtn">
+                            <span class="dropdown-item-icon">🔄</span>
+                            <span>Сбросить вид</span>
+                        </button>
+
+                        <div class="dropdown-divider"></div>
+
+                        <button class="dropdown-item danger" id="logoutBtn">
+                            <span class="dropdown-item-icon">🚪</span>
+                            <span>Выйти</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Мобильная панель инструментов (внизу) -->
+    <div class="mobile-toolbar-overlay" id="mobileToolbarOverlay"></div>
+
+    <!-- Основная часть -->
+    <main class="app-main">
+        <!-- Панель инструментов -->
+        <aside class="toolbar" id="toolbar">
+            <div class="toolbar-scroll">
+                <button class="tool-btn active" data-tool="brush" title="Кисть">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M3 17L7 13M7 13L14 3L17 6L7 13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    <span class="tool-tooltip">Кисть</span>
+                </button>
+
+                <button class="tool-btn" data-tool="eraser" title="Ластик">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 16H16M7 13L14 6L17 9L10 16H7V13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    <span class="tool-tooltip">Ластик</span>
+                </button>
+
+                <div class="toolbar-divider"></div>
+
+                <button class="tool-btn" data-tool="line" title="Линия">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 16L16 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <span class="tool-tooltip">Линия</span>
+                </button>
+
+                <button class="tool-btn" data-tool="rect" title="Прямоугольник">
+                    <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+                    <span class="tool-tooltip">Прямоугольник</span>
+                </button>
+
+                <button class="tool-btn" data-tool="circle" title="Эллипс">
+                    <svg viewBox="0 0 20 20" fill="none"><ellipse cx="10" cy="10" rx="7" ry="5" stroke="currentColor" stroke-width="1.5"/></svg>
+                    <span class="tool-tooltip">Эллипс</span>
+                </button>
+
+                <button class="tool-btn" data-tool="text" title="Текст">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M5 5H15M10 5V16M7 16H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <span class="tool-tooltip">Текст</span>
+                </button>
+
+                <button class="tool-btn" data-tool="image" title="Изображение">
+                    <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="8" r="1.5" fill="currentColor"/><path d="M3 14L7 10L11 14L14 11L17 14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    <span class="tool-tooltip">Изображение</span>
+                </button>
+
+                <div class="toolbar-divider"></div>
+
+                <button class="tool-btn" data-tool="pan" title="Перемещение">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M10 3V17M3 10H17M10 3L7 6M10 3L13 6M10 17L7 14M10 17L13 14M3 10L6 7M3 10L6 13M17 10L14 7M17 10L14 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="tool-tooltip">Перемещение</span>
+                </button>
+
+                <div class="toolbar-divider"></div>
+
+                <button class="tool-btn" data-tool="undo" title="Отменить">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 8L8 4M4 8L8 12M4 8H13C15 8 16 9 16 11C16 13 15 14 13 14H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="tool-tooltip">Отменить</span>
+                </button>
+
+                <button class="tool-btn" data-tool="redo" title="Повторить">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M16 8L12 4M16 8L12 12M16 8H7C5 8 4 9 4 11C4 13 5 14 7 14H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="tool-tooltip">Повторить</span>
+                </button>
+
+                <div class="toolbar-divider"></div>
+
+                <!-- Палитра цветов -->
+                <div class="color-section">
+                    <div class="color-picker-wrapper">
+                        <div class="color-preview" id="colorPreview" style="background: #1A1A2E;"></div>
+                        <input type="color" class="color-input" id="colorInput" value="#1A1A2E">
+                    </div>
+
+                    <div class="color-palette">
+                        <button class="palette-color" data-color="#1A1A2E" style="background:#1A1A2E" title="Чёрный"></button>
+                        <button class="palette-color" data-color="#FFFFFF" style="background:#FFFFFF; border: 1px solid #ddd;" title="Белый"></button>
+                        <button class="palette-color" data-color="#E17055" style="background:#E17055" title="Красный"></button>
+                        <button class="palette-color" data-color="#FF6B6B" style="background:#FF6B6B" title="Светло-красный"></button>
+                        <button class="palette-color" data-color="#0984E3" style="background:#0984E3" title="Синий"></button>
+                        <button class="palette-color" data-color="#74B9FF" style="background:#74B9FF" title="Голубой"></button>
+                        <button class="palette-color" data-color="#00B894" style="background:#00B894" title="Зелёный"></button>
+                        <button class="palette-color" data-color="#55EFC4" style="background:#55EFC4" title="Мятный"></button>
+                        <button class="palette-color" data-color="#FDCB6E" style="background:#FDCB6E" title="Жёлтый"></button>
+                        <button class="palette-color" data-color="#E84393" style="background:#E84393" title="Розовый"></button>
+                        <button class="palette-color" data-color="#6C5CE7" style="background:#6C5CE7" title="Фиолетовый"></button>
+                        <button class="palette-color" data-color="#A29BFE" style="background:#A29BFE" title="Лавандовый"></button>
+                        <button class="palette-color" data-color="#FD79A8" style="background:#FD79A8" title="Пастельный розовый"></button>
+                        <button class="palette-color" data-color="#636E72" style="background:#636E72" title="Серый"></button>
+                        <button class="palette-color" data-color="#D63031" style="background:#D63031" title="Тёмно-красный"></button>
+                        <button class="palette-color" data-color="#2D3436" style="background:#2D3436" title="Тёмно-серый"></button>
+                    </div>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <!-- Размер кисти -->
+                <div class="brush-size-section">
+                    <span class="brush-size-label" id="brushSizeLabel">4px</span>
+                    <input type="range" class="brush-size-slider" id="brushSizeSlider" min="1" max="50" value="4">
+                    <div class="brush-size-preview" id="brushSizePreview">
+                        <div class="brush-dot" id="brushDot"></div>
+                    </div>
+                </div>
+
+                <!-- Прозрачность -->
+                <div class="opacity-section">
+                    <span class="opacity-label">Прозр.</span>
+                    <input type="range" class="opacity-slider" id="opacitySlider" min="10" max="100" value="100">
+                    <span class="opacity-value" id="opacityValue">100%</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Холст -->
+        <div class="canvas-container" id="canvasContainer">
+            <canvas id="mainCanvas"></canvas>
+
+            <!-- Предупреждение о чужой области -->
+            <div class="canvas-warning hidden" id="canvasWarning">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 14H1L8 1Z" stroke="currentColor" stroke-width="1.5"/><path d="M8 6V9M8 11V11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span>Нельзя рисовать поверх чужих рисунков</span>
+            </div>
+
+            <!-- Онлайн пользователи -->
+            <div class="online-users-bar" id="onlineUsersBar">
+                <div class="online-avatars" id="onlineAvatars"></div>
+                <span class="online-count" id="onlineCount">0 онлайн</span>
+            </div>
+
+            <!-- Мобильные инструменты (нижняя панель) -->
+            <div class="mobile-bottom-toolbar" id="mobileBottomToolbar">
+                <button class="mobile-tool active" data-tool="brush">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17L7 13M7 13L14 3L17 6L7 13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                </button>
+                <button class="mobile-tool" data-tool="eraser">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 16H16M7 13L14 6L17 9L10 16H7V13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                </button>
+                <button class="mobile-tool" id="mobileColorBtn">
+                    <div class="mobile-color-dot" id="mobileColorDot" style="background: #1A1A2E;"></div>
+                </button>
+                <button class="mobile-tool" data-tool="pan">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3V17M3 10H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+                <button class="mobile-tool" data-tool="undo">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 8L8 4M4 8L8 12M4 8H13C15 8 16 9 16 11C16 13 15 14 13 14H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button class="mobile-tool" id="mobileMoreBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/><circle cx="16" cy="10" r="1.5" fill="currentColor"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Правая панель -->
+        <aside class="sidebar-right" id="sidebarRight">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-panel="friendsPanel">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 14C1 11 3 9 6 9C9 9 11 11 11 14" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="6" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M15 14C15 12 14 10 12 10" stroke="currentColor" stroke-width="1.3"/></svg>
+                    <span>Друзья</span>
+                    <span class="badge friend-requests-badge" id="friendRequestsBadge" style="display:none">0</span>
+                </button>
+                <button class="sidebar-tab" data-panel="chatPanel">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3H14V11H5L2 14V3Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                    <span>Чат</span>
+                    <span class="badge chat-badge" id="chatBadge" style="display:none">0</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Друзья -->
+                <div class="sidebar-panel active" id="friendsPanel">
+                    <div class="search-wrapper">
+                        <input type="text" class="search-input" id="friendSearch" placeholder="Поиск по никнейму..." autocomplete="off" maxlength="20">
+                    </div>
+                    <div class="friends-list" id="friendsList">
+                        <div class="sidebar-empty">
+                            <div class="sidebar-empty-icon">👥</div>
+                            <p>У вас пока нет друзей</p>
+                            <p class="sidebar-empty-hint">Найдите по никнейму выше</p>
+                        </div>
+                    </div>
+                    <div class="add-friend-section">
+                        <form class="add-friend-form" id="addFriendForm">
+                            <input type="text" id="addFriendInput" placeholder="Никнейм..." minlength="2" maxlength="20" autocomplete="off">
+                            <button type="submit" class="btn-primary btn-sm">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3V11M3 7H11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Чат -->
+                <div class="sidebar-panel" id="chatPanel">
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <button class="btn-icon" id="globalChatBtn" title="Общий чат">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M2 8H14M8 2C6 4 5 6 5 8C5 10 6 12 8 14M8 2C10 4 11 6 11 8C11 10 10 12 8 14" stroke="currentColor" stroke-width="1"/></svg>
+                            </button>
+                            <div>
+                                <div class="chat-header-name" id="chatHeaderName">Общий чат</div>
+                                <div class="chat-header-status" id="chatHeaderStatus">Все пользователи</div>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="sidebar-empty">
+                                <div class="sidebar-empty-icon">💬</div>
+                                <p>Сообщений пока нет</p>
+                                <p class="sidebar-empty-hint">Будьте первым!</p>
+                            </div>
+                        </div>
+                        <div class="chat-input-wrapper">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." maxlength="500" autocomplete="off">
+                            <button class="chat-send-btn" id="chatSendBtn" disabled aria-label="Отправить">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9L15 3L9 15L8 10L3 9Z" fill="currentColor"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Онбординг -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <div class="onboarding-card glass-card">
+            <div id="onboardingSteps"></div>
+            <div class="onboarding-dots" id="onboardingDots"></div>
+            <div class="onboarding-actions" id="onboardingActions"></div>
+        </div>
+    </div>
+
+    <!-- Уведомление о лимите -->
+    <div class="modal-overlay" id="limitModal">
+        <div class="modal glass-card" style="max-width: 420px; text-align: center;">
+            <div class="onboarding-icon" style="background: linear-gradient(135deg, #E17055, #FAB1A0); margin: 0 auto 20px; width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px;">🎨</div>
+            <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Краска закончилась!</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">Вы использовали весь запас краски на сегодня. Обновите план или подождите до завтра.</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="btn-ghost" id="limitCloseBtn">Понятно</button>
+                <button class="btn-primary" id="limitUpgradeBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L10 6H14L11 9L12 13L8 11L4 13L5 9L2 6H6L8 2Z" fill="currentColor"/></svg>
+                    Улучшить план
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно планов -->
+    <div class="modal-overlay" id="plansModal">
+        <div class="modal glass-card modal-lg">
+            <button class="modal-close" id="plansCloseBtn">&times;</button>
+            <div class="plans-header">
+                <h2 class="plans-title">Выберите план</h2>
+                <p class="plans-subtitle">Больше краски — больше творчества</p>
+            </div>
+
+            <div class="plans-grid">
+                <!-- Бесплатный -->
+                <div class="plan-card" data-plan="free">
+                    <div class="plan-badge">Текущий</div>
+                    <h3 class="plan-name">Стартовый</h3>
+                    <div class="plan-price">
+                        <span class="plan-amount">0</span>
+                        <span class="plan-currency">₽/мес</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ 1 000 единиц краски/день</li>
+                        <li>✅ Базовые кисти</li>
+                        <li>✅ Общий чат</li>
+                        <li>✅ 10 друзей</li>
+                        <li>❌ Нет приватных холстов</li>
+                        <li>❌ Очистка каждые 10 мин</li>
+                    </ul>
+                    <button class="btn-outline w-full" disabled>Текущий план</button>
+                </div>
+
+                <!-- Про -->
+                <div class="plan-card plan-popular" data-plan="pro">
+                    <div class="plan-badge popular">Популярный</div>
+                    <h3 class="plan-name">Художник</h3>
+                    <div class="plan-price">
+                        <span class="plan-amount">299</span>
+                        <span class="plan-currency">₽/мес</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ 10 000 единиц краски/день</li>
+                        <li>✅ Все кисти и инструменты</li>
+                        <li>✅ Приватные холсты</li>
+                        <li>✅ 50 друзей</li>
+                        <li>✅ Очистка каждые 30 мин</li>
+                        <li>✅ Без рекламы</li>
+                    </ul>
+                    <button class="btn-primary w-full plan-buy-btn" data-plan="pro" data-price="299">Купить за 299 ₽/мес</button>
+                </div>
+
+                <!-- Премиум -->
+                <div class="plan-card" data-plan="premium">
+                    <div class="plan-badge">Максимум</div>
+                    <h3 class="plan-name">Мастер</h3>
+                    <div class="plan-price">
+                        <span class="plan-amount">799</span>
+                        <span class="plan-currency">₽/мес</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ ∞ Безлимитная краска</li>
+                        <li>✅ Эксклюзивные кисти</li>
+                        <li>✅ Приватные холсты</li>
+                        <li>✅ ∞ Друзей</li>
+                        <li>✅ Без очистки холста</li>
+                        <li>✅ Приоритетная поддержка</li>
+                        <li>✅ Значок «Мастер» ⭐</li>
+                    </ul>
+                    <button class="btn-primary w-full plan-buy-btn" data-plan="premium" data-price="799">Купить за 799 ₽/мес</button>
+                </div>
+            </div>
+
+            <div class="plans-footer">
+                <p>💳 Оплата через ЮKassa / СБП / банковские карты</p>
+                <p>Отмена подписки в любой момент. Вопросы: <a href="mailto:support@nuller.ru">support@nuller.ru</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Текстовый ввод (для инструмента текст) -->
+    <div class="modal-overlay" id="textInputModal">
+        <div class="modal glass-card" style="max-width: 400px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Введите текст</h3>
+            <div class="form-group">
+                <input type="text" id="textToolInput" placeholder="Ваш текст..." maxlength="200" autofocus>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn-ghost" id="textCancelBtn">Отмена</button>
+                <button class="btn-primary" id="textConfirmBtn">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мобильная палитра -->
+    <div class="modal-overlay" id="mobileColorModal">
+        <div class="modal glass-card" style="max-width: 320px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Выберите цвет</h3>
+            <div class="mobile-color-grid" id="mobileColorGrid"></div>
+            <div class="form-group" style="margin-top: 16px;">
+                <label>Свой цвет</label>
+                <input type="color" id="mobileColorPicker" style="width: 100%; height: 44px; border: none; border-radius: 8px; cursor: pointer;">
+            </div>
+            <div class="form-group">
+                <label>Размер кисти: <span id="mobileBrushLabel">4px</span></label>
+                <input type="range" id="mobileBrushSlider" min="1" max="50" value="4" style="width: 100%;">
+            </div>
+            <button class="btn-primary w-full" id="mobileColorConfirm">Готово</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/security.js"></script>
+    <script src="../js/canvas-engine.js"></script>
+    <script src="../js/realtime-sync.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/chat.js"></script>
+    <script src="../js/friends.js"></script>
+    <script src="../js/onboarding.js"></script>
+    <script src="../js/app.js"></script>
+</body>
+</html>
