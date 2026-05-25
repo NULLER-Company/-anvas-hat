@@ -1,6 +1,5 @@
 /**
- * CanvasChat — UI Manager
- * Управляет всем пользовательским интерфейсом приложения
+ * CanvasChat — UI Manager (v2)
  */
 
 class UIManager {
@@ -15,64 +14,24 @@ class UIManager {
         document.body.appendChild(this.toastContainer);
     }
 
-    // ==========================================
-    // Toast уведомления
-    // ==========================================
-
     showToast(message, type = 'info', duration = 4000) {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-
-        const icons = {
-            success: '✓',
-            error: '✕',
-            warning: '⚠',
-            info: 'ℹ'
-        };
-
+        const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
         toast.innerHTML = `
-            <span style="font-size: 16px;">${icons[type] || icons.info}</span>
-            <span>${message}</span>
+            <span style="font-size:16px;">${icons[type] || icons.info}</span>
+            <span>${Security.escapeHtml(message)}</span>
         `;
-
         this.toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-            toast.remove();
-        }, duration);
+        setTimeout(() => toast.remove(), duration);
     }
-
-    // ==========================================
-    // Обновление лимита
-    // ==========================================
-
-    updateLimitIndicator(count, limit) {
-        const percent = (count / limit) * 100;
-        const fill = document.querySelector('.limit-fill');
-        const text = document.querySelector('.limit-text');
-
-        if (fill) {
-            fill.style.width = Math.min(100, percent) + '%';
-            fill.classList.toggle('warning', percent > 70);
-        }
-
-        if (text) {
-            text.textContent = `${count}/${limit}`;
-        }
-    }
-
-    // ==========================================
-    // Онлайн пользователи
-    // ==========================================
 
     updateOnlineUsers(users) {
-        const avatarsEl = document.querySelector('.online-avatars');
-        const countEl = document.querySelector('.online-count');
-
+        const avatarsEl = document.getElementById('onlineAvatars');
+        const countEl = document.getElementById('onlineCount');
         if (!avatarsEl || !countEl) return;
 
         avatarsEl.innerHTML = '';
-
         const colors = ['#6C5CE7', '#E17055', '#00B894', '#FDCB6E', '#0984E3', '#E84393'];
         const maxShow = 5;
 
@@ -80,7 +39,12 @@ class UIManager {
             const avatar = document.createElement('div');
             avatar.className = 'online-avatar';
             avatar.style.background = colors[i % colors.length];
-            avatar.textContent = (user.nickname || 'A')[0].toUpperCase();
+
+            if (user.avatar) {
+                avatar.innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            } else {
+                avatar.textContent = (user.nickname || 'A')[0].toUpperCase();
+            }
             avatarsEl.appendChild(avatar);
         });
 
@@ -92,59 +56,20 @@ class UIManager {
             avatarsEl.appendChild(more);
         }
 
-        const plural = users.length === 1 ? 'пользователь' :
-            users.length < 5 ? 'пользователя' : 'пользователей';
-        countEl.textContent = `${users.length} ${plural} онлайн`;
+        // Правильное склонение
+        const n = users.length;
+        let word;
+        if (n % 10 === 1 && n % 100 !== 11) word = 'пользователь';
+        else if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) word = 'пользователя';
+        else word = 'пользователей';
+
+        countEl.textContent = `${n} ${word} онлайн`;
     }
-
-    // ==========================================
-    // Профиль дропдаун
-    // ==========================================
-
-    setupProfileDropdown(user, onLogout) {
-        const avatar = document.getElementById('userAvatarBtn');
-        const dropdown = document.getElementById('profileDropdown');
-
-        if (!avatar || !dropdown) return;
-
-        avatar.textContent = (user.nickname || user.email || 'U')[0].toUpperCase();
-
-        const nameEl = dropdown.querySelector('.profile-dropdown-name');
-        const emailEl = dropdown.querySelector('.profile-dropdown-email');
-
-        if (nameEl) nameEl.textContent = user.nickname || user.displayName || 'Пользователь';
-        if (emailEl) emailEl.textContent = user.email || '';
-
-        avatar.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('active');
-        });
-
-        document.addEventListener('click', () => {
-            dropdown.classList.remove('active');
-        });
-
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                dropdown.classList.remove('active');
-                if (onLogout) onLogout();
-            });
-        }
-    }
-
-    // ==========================================
-    // Zoom display
-    // ==========================================
 
     updateZoomDisplay(percent) {
-        const el = document.querySelector('.zoom-display');
+        const el = document.getElementById('zoomDisplay');
         if (el) el.textContent = `${percent}%`;
     }
-
-    // ==========================================
-    // Сайдбар
-    // ==========================================
 
     setupSidebar() {
         const tabs = document.querySelectorAll('.sidebar-tab');
@@ -153,54 +78,13 @@ class UIManager {
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const target = tab.dataset.panel;
-
                 tabs.forEach(t => t.classList.remove('active'));
                 panels.forEach(p => p.classList.remove('active'));
-
                 tab.classList.add('active');
-                const panel = document.getElementById(target);
-                if (panel) panel.classList.add('active');
+                document.getElementById(target)?.classList.add('active');
             });
         });
     }
-
-    toggleSidebar() {
-        const sidebar = document.querySelector('.sidebar-right');
-        if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-        }
-    }
-
-    // ==========================================
-    // Диалог лимита
-    // ==========================================
-
-    showLimitDialog() {
-        const overlay = document.querySelector('.limit-notification-overlay');
-        const dialog = document.querySelector('.limit-notification');
-
-        if (overlay) overlay.classList.add('active');
-        if (dialog) dialog.classList.add('active');
-
-        const closeBtn = dialog?.querySelector('.limit-close-btn');
-        if (closeBtn) {
-            closeBtn.onclick = () => {
-                overlay?.classList.remove('active');
-                dialog?.classList.remove('active');
-            };
-        }
-
-        if (overlay) {
-            overlay.onclick = () => {
-                overlay.classList.remove('active');
-                dialog?.classList.remove('active');
-            };
-        }
-    }
-
-    // ==========================================
-    // Toolbar setup
-    // ==========================================
 
     setupToolbar(canvasEngine) {
         const toolButtons = document.querySelectorAll('.tool-btn[data-tool]');
@@ -210,12 +94,15 @@ class UIManager {
                 const tool = btn.dataset.tool;
 
                 if (tool === 'text') {
-                    const text = prompt('Введите текст:');
-                    if (text) {
-                        const rect = document.querySelector('.canvas-container').getBoundingClientRect();
-                        const x = (rect.width / 2 - canvasEngine.transform.x) / canvasEngine.transform.scale;
-                        const y = (rect.height / 2 - canvasEngine.transform.y) / canvasEngine.transform.scale;
-                        canvasEngine.addText(text, x, y);
+                    if (window.canvasChat) {
+                        window.canvasChat.promptText().then(text => {
+                            if (text) {
+                                const rect = document.getElementById('canvasContainer').getBoundingClientRect();
+                                const x = (rect.width / 2 - canvasEngine.transform.x) / canvasEngine.transform.scale;
+                                const y = (rect.height / 2 - canvasEngine.transform.y) / canvasEngine.transform.scale;
+                                canvasEngine.addText(text, x, y);
+                            }
+                        });
                     }
                     return;
                 }
@@ -226,81 +113,90 @@ class UIManager {
                     input.accept = 'image/*';
                     input.onchange = async (e) => {
                         const file = e.target.files[0];
-                        if (file) {
-                            try {
-                                await canvasEngine.addImage(file);
-                            } catch (err) {
-                                this.showToast('Ошибка загрузки изображения', 'error');
-                            }
+                        if (!file) return;
+
+                        const validation = Security.validateImageFile(file);
+                        if (!validation.valid) {
+                            this.showToast(validation.error, 'error');
+                            return;
+                        }
+
+                        try {
+                            await canvasEngine.addImage(file);
+                            this.showToast('Изображение добавлено!', 'success');
+                        } catch (err) {
+                            this.showToast('Ошибка загрузки изображения', 'error');
                         }
                     };
                     input.click();
                     return;
                 }
 
-                if (tool === 'undo') {
-                    canvasEngine.undo();
-                    return;
-                }
+                if (tool === 'undo') { canvasEngine.undo(); return; }
+                if (tool === 'redo') { canvasEngine.redo(); return; }
 
-                if (tool === 'redo') {
-                    canvasEngine.redo();
-                    return;
-                }
-
-                // Обычные инструменты
                 toolButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 canvasEngine.setTool(tool);
             });
         });
 
-        // Выбор цвета
-        const colorPreview = document.querySelector('.color-preview');
-        const colorInput = document.querySelector('.color-input');
+        // Цвет
+        const colorPreview = document.getElementById('colorPreview');
+        const colorInput = document.getElementById('colorInput');
 
-        if (colorPreview && colorInput) {
-            colorPreview.addEventListener('click', () => colorInput.click());
-            colorInput.addEventListener('input', (e) => {
-                const color = e.target.value;
-                colorPreview.style.background = color;
-                canvasEngine.setColor(color);
-            });
-        }
+        colorPreview?.addEventListener('click', () => colorInput?.click());
+        colorInput?.addEventListener('input', (e) => {
+            const color = Security.sanitizeColor(e.target.value);
+            colorPreview.style.background = color;
+            canvasEngine.setColor(color);
+            document.getElementById('mobileColorDot').style.background = color;
+        });
 
-        // Быстрые цвета
-        document.querySelectorAll('.quick-color').forEach(btn => {
+        // Палитра
+        document.querySelectorAll('.palette-color').forEach(btn => {
             btn.addEventListener('click', () => {
-                const color = btn.dataset.color;
+                const color = Security.sanitizeColor(btn.dataset.color);
                 canvasEngine.setColor(color);
                 if (colorPreview) colorPreview.style.background = color;
                 if (colorInput) colorInput.value = color;
+                document.getElementById('mobileColorDot').style.background = color;
+
+                document.querySelectorAll('.palette-color').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
             });
         });
 
         // Размер кисти
-        const brushSlider = document.querySelector('.brush-size-slider');
-        const brushLabel = document.querySelector('.brush-size-label');
+        const brushSlider = document.getElementById('brushSizeSlider');
+        const brushLabel = document.getElementById('brushSizeLabel');
+        const brushDot = document.getElementById('brushDot');
 
-        if (brushSlider) {
-            brushSlider.addEventListener('input', (e) => {
-                const size = parseInt(e.target.value);
-                canvasEngine.setBrushSize(size);
-                if (brushLabel) brushLabel.textContent = size + 'px';
-            });
-        }
+        brushSlider?.addEventListener('input', (e) => {
+            const size = parseInt(e.target.value);
+            canvasEngine.setBrushSize(size);
+            if (brushLabel) brushLabel.textContent = size + 'px';
+            if (brushDot) {
+                brushDot.style.width = Math.min(24, Math.max(2, size)) + 'px';
+                brushDot.style.height = Math.min(24, Math.max(2, size)) + 'px';
+            }
+        });
+
+        // Прозрачность
+        const opacitySlider = document.getElementById('opacitySlider');
+        const opacityValue = document.getElementById('opacityValue');
+
+        opacitySlider?.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            canvasEngine.opacity = val / 100;
+            if (opacityValue) opacityValue.textContent = val + '%';
+        });
 
         // Zoom
-        const zoomInBtn = document.getElementById('zoomInBtn');
-        const zoomOutBtn = document.getElementById('zoomOutBtn');
-        const zoomResetBtn = document.getElementById('zoomResetBtn');
+        document.getElementById('zoomInBtn')?.addEventListener('click', () => canvasEngine.zoomIn());
+        document.getElementById('zoomOutBtn')?.addEventListener('click', () => canvasEngine.zoomOut());
+        document.getElementById('zoomResetBtn')?.addEventListener('click', () => canvasEngine.resetView());
 
-        if (zoomInBtn) zoomInBtn.addEventListener('click', () => canvasEngine.zoomIn());
-        if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => canvasEngine.zoomOut());
-        if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => canvasEngine.resetView());
-
-        canvasEngine.onZoomChange = (percent) => {
-            this.updateZoomDisplay(percent);
-        };
+        canvasEngine.onZoomChange = (percent) => this.updateZoomDisplay(percent);
     }
 }
