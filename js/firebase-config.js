@@ -3,17 +3,6 @@
  * Замените значения на свои из Firebase Console
  */
 
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBqbexDcbA_g82ZTlXCur6O8Ap9kGkLt6A",
-  authDomain: "canvaschat-52708.firebaseapp.com",
-  databaseURL: "https://canvaschat-52708-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "canvaschat-52708",
-  storageBucket: "canvaschat-52708.firebasestorage.app",
-  messagingSenderId: "35319703560",
-  appId: "1:35319703560:web:658e82c88bee0d70c609bd",
-  measurementId: "G-P3X7TH7G70"
-};
-
 // Инициализация Firebase (CDN подход для GitHub Pages)
 class FirebaseService {
     constructor() {
