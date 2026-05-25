@@ -1075,3 +1075,868 @@
         display: none;
     }
 }
+/* ========================================
+   ДОПОЛНЕНИЯ К app.css
+   Добавить ЭТО в конец файла css/app.css
+   ======================================== */
+
+/* ========================================
+   Загрузочный экран
+   ======================================== */
+
+.loading-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.4s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--bg-tertiary);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+/* ========================================
+   Таймер очистки
+   ======================================== */
+
+.canvas-timer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.canvas-timer.warning {
+    color: var(--accent-red);
+    background: rgba(225, 112, 85, 0.1);
+}
+
+.topbar-separator {
+    width: 1px;
+    height: 24px;
+    background: var(--border-light);
+    margin: 0 4px;
+}
+
+/* ========================================
+   Индикатор краски
+   ======================================== */
+
+.paint-limit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+}
+
+.paint-icon {
+    color: var(--primary);
+    display: flex;
+}
+
+.paint-bar {
+    width: 60px;
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.paint-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-green), var(--primary));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.paint-fill.low {
+    background: linear-gradient(90deg, var(--accent-yellow), var(--accent-red));
+}
+
+.paint-fill.empty {
+    background: var(--accent-red);
+}
+
+.paint-text {
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 32px;
+    text-align: right;
+}
+
+/* ========================================
+   Кнопка планов
+   ======================================== */
+
+.btn-plans {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #FDCB6E, #F39C12);
+    color: #1A1A2E;
+    border: none;
+    border-radius: var(--radius-full);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
+.btn-plans:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+}
+
+/* ========================================
+   Профиль
+   ======================================== */
+
+.profile-wrapper {
+    position: relative;
+}
+
+.user-avatar-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.avatar-status {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+}
+
+.avatar-status.online { background: var(--accent-green); }
+.avatar-status.offline { background: var(--text-tertiary); }
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 280px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.profile-dropdown.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.profile-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.profile-avatar-edit {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.profile-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 800;
+    overflow: hidden;
+}
+
+.profile-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-edit-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.profile-avatar-edit:hover .avatar-edit-overlay {
+    opacity: 1;
+}
+
+.profile-info-edit {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-dropdown-name {
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-icon-sm {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.btn-icon-sm:hover {
+    background: var(--bg-secondary);
+    color: var(--primary);
+}
+
+.profile-dropdown-email {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.profile-edit-name {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.profile-edit-name input {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family);
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    margin-bottom: 8px;
+}
+
+.profile-edit-name input:focus {
+    border-color: var(--primary);
+}
+
+.profile-edit-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-light);
+    margin: 4px 8px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    width: 100%;
+    font-family: var(--font-family);
+    font-size: 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.dropdown-item.danger {
+    color: var(--accent-red);
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(225, 112, 85, 0.08);
+}
+
+.dropdown-item.theme-toggle {
+    cursor: default;
+}
+
+.dropdown-item-icon {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Палитра
+   ======================================== */
+
+.color-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+}
+
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+    padding: 0 4px;
+}
+
+.palette-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s;
+    padding: 0;
+}
+
+.palette-color:hover {
+    transform: scale(1.3);
+    z-index: 2;
+}
+
+.palette-color.active {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+
+/* ========================================
+   Opacity section
+   ======================================== */
+
+.opacity-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+}
+
+.opacity-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+}
+
+.opacity-slider {
+    width: 36px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    outline: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+}
+
+.opacity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+}
+
+.opacity-value {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+
+/* ========================================
+   Brush size preview
+   ======================================== */
+
+.brush-size-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+}
+
+.brush-size-preview {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+}
+
+.brush-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    transition: all 0.15s;
+}
+
+/* ========================================
+   Canvas warning
+   ======================================== */
+
+.canvas-warning {
+    position: absolute;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(225, 112, 85, 0.95);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 40;
+    box-shadow: var(--shadow-md);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* ========================================
+   Модалка планов
+   ======================================== */
+
+.plans-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.plans-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+}
+
+.plans-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.plan-card {
+    padding: 24px;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    position: relative;
+    transition: all 0.2s;
+    background: var(--bg-primary);
+}
+
+.plan-card:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.plan-card.plan-popular {
+    border-color: var(--primary);
+    box-shadow: 0 4px 24px rgba(108, 92, 231, 0.15);
+}
+
+.plan-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.plan-badge.popular {
+    color: var(--primary);
+}
+
+.plan-name {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 20px;
+}
+
+.plan-amount {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.plan-currency {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.plan-features li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.plans-footer {
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plans-footer a {
+    color: var(--primary);
+}
+
+/* ========================================
+   Мобильная цветовая сетка
+   ======================================== */
+
+.mobile-color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.mobile-color-grid .palette-color {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+}
+
+/* ========================================
+   Sidebar empty state
+   ======================================== */
+
+.sidebar-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    flex: 1;
+}
+
+.sidebar-empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+}
+
+.sidebar-empty p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.sidebar-empty-hint {
+    font-size: 12px !important;
+    color: var(--text-tertiary) !important;
+    margin-top: 4px;
+}
+
+/* ========================================
+   Мобильные стили
+   ======================================== */
+
+.mobile-only { display: none !important; }
+.desktop-only { display: flex; }
+
+.mobile-bottom-toolbar {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-only { display: flex !important; }
+    .desktop-only { display: none !important; }
+
+    .app-topbar {
+        padding: 6px 12px;
+        height: 48px;
+    }
+
+    .topbar-center {
+        gap: 4px;
+    }
+
+    .zoom-display {
+        font-size: 12px;
+        padding: 2px 6px;
+    }
+
+    .paint-limit {
+        padding: 4px 8px;
+    }
+
+    .paint-bar { width: 40px; }
+    .paint-text { font-size: 11px; min-width: 28px; }
+
+    /* Тулбар скрыт на мобиле */
+    .toolbar {
+        display: none;
+    }
+
+    /* Мобильная нижняя панель */
+    .mobile-bottom-toolbar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 8px 16px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border-light);
+        z-index: 40;
+    }
+
+    .mobile-tool {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .mobile-tool.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .mobile-color-dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid var(--bg-primary);
+        box-shadow: 0 0 0 1px var(--border-medium);
+    }
+
+    /* Сайдбар */
+    .sidebar-right {
+        position: fixed;
+        right: 0;
+        top: 48px;
+        bottom: 0;
+        width: 100%;
+        max-width: 360px;
+        z-index: 45;
+        box-shadow: var(--shadow-xl);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-right.active {
+        transform: translateX(0);
+    }
+
+    .sidebar-right.collapsed {
+        transform: translateX(100%);
+    }
+
+    /* Online bar */
+    .online-users-bar {
+        bottom: 68px;
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    /* Модалка планов */
+    .plans-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .plan-card {
+        padding: 20px;
+    }
+
+    .plans-title {
+        font-size: 22px;
+    }
+
+    .modal {
+        width: 95%;
+        padding: 24px;
+        max-height: 85vh;
+    }
+
+    .modal-lg {
+        max-width: 100%;
+    }
+
+    /* Canvas warning */
+    .canvas-warning {
+        top: 56px;
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+
+    /* Profile dropdown */
+    .profile-dropdown {
+        position: fixed;
+        top: 48px;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+}
+
+@media (max-width: 380px) {
+    .btn-plans {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .btn-plans span {
+        display: none;
+    }
+}
+
+/* ========================================
+   Планшет
+   ======================================== */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar-right {
+        width: 280px;
+    }
+
+    .plans-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .plan-card:last-child {
+        grid-column: 1 / -1;
+        max-width: 50%;
+        margin: 0 auto;
+    }
+}
