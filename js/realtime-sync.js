@@ -1,6 +1,6 @@
 /**
- * CanvasChat — Realtime Synchronization
- * Управляет синхронизацией холста, курсоров и чата через Firebase
+ * CanvasChat — Realtime Sync (v2)
+ * С расчётом краски, защитой от перекрытий, таймером очистки
  */
 
 class RealtimeSync {
@@ -9,64 +9,51 @@ class RealtimeSync {
         this.canvas = canvasEngine;
         this.userId = userId;
         this.userProfile = null;
-
         this._unsubscribers = [];
-        this._cursorThrottle = null;
-        this._cursorUpdateInterval = 50; // ms
         this._lastCursorUpdate = 0;
+        this._cursorInterval = 50;
 
-        // Калбэки
         this.onOnlineUsersChange = null;
         this.onRemoteCursorUpdate = null;
         this.onLimitReached = null;
+        this.onStrokeCountChange = null;
 
-        this.strokeLimit = 100;
-        this.currentStrokeCount = 0;
+        this.paintLimit = 1000;
+        this.paintUsed = 0;
     }
 
     async start() {
         try {
-            // Загружаем профиль
             this.userProfile = await this.firebase.getUserProfile(this.userId);
 
-            // Проверяем и сбрасываем дневной лимит
+            // Лимит краски
             const limitInfo = await this.firebase.getStrokeCount(this.userId);
-            this.currentStrokeCount = limitInfo.count;
-            this.strokeLimit = limitInfo.limit;
+            this.paintUsed = limitInfo.count || 0;
 
-            // Загружаем существующие мазки
+            // Загрузка мазков
             const strokes = await this.firebase.loadCanvasStrokes();
             this.canvas.loadStrokes(strokes);
 
-            // Подписываемся на новые мазки
             this._setupStrokeSync();
-
-            // Подписываемся на курсоры
             this._setupCursorSync();
-
-            // Подписываемся на онлайн пользователей
             this._setupOnlineUsers();
-
-            // Настраиваем калбэки канваса
             this._setupCanvasCallbacks();
 
-            console.log('[Sync] Синхронизация запущена');
+            console.log('[Sync] Запущен');
         } catch (error) {
-            console.error('[Sync] Ошибка запуска:', error);
+            console.error('[Sync] Ошибка:', error);
             throw error;
         }
     }
 
     _setupStrokeSync() {
-        // Слушаем новые мазки
         const unsub = this.firebase.onNewStroke(stroke => {
-            // Игнорируем свои мазки (уже отрисованы локально)
             if (stroke.userId === this.userId) return;
+            if (!Security.validateStroke(stroke)) return;
             this.canvas.addRemoteStroke(stroke);
         });
         this._unsubscribers.push(unsub);
 
-        // Слушаем удаление мазков (undo)
         this.firebase.onStrokeRemoved(strokeId => {
             this.canvas.removeStroke(strokeId);
         });
@@ -74,38 +61,31 @@ class RealtimeSync {
 
     _setupCursorSync() {
         this.firebase.onCursors(cursors => {
-            const cursorElements = document.querySelectorAll('.remote-cursor');
+            const container = document.getElementById('canvasContainer');
+            if (!container) return;
+
             const existingIds = new Set();
 
             Object.entries(cursors).forEach(([uid, data]) => {
-                if (uid === this.userId) return; // Пропускаем свой курсор
+                if (uid === this.userId) return;
                 existingIds.add(uid);
 
                 let el = document.getElementById(`cursor-${uid}`);
                 if (!el) {
                     el = this._createCursorElement(uid, data);
-                    document.querySelector('.canvas-container').appendChild(el);
+                    container.appendChild(el);
                 }
 
-                // Позиция с учётом трансформации канваса
                 const screenX = data.x * this.canvas.transform.scale + this.canvas.transform.x;
                 const screenY = data.y * this.canvas.transform.scale + this.canvas.transform.y;
-
                 el.style.left = screenX + 'px';
                 el.style.top = screenY + 'px';
             });
 
-            // Удаляем курсоры отключившихся пользователей
-            cursorElements.forEach(el => {
+            container.querySelectorAll('.remote-cursor').forEach(el => {
                 const uid = el.id.replace('cursor-', '');
-                if (!existingIds.has(uid)) {
-                    el.remove();
-                }
+                if (!existingIds.has(uid)) el.remove();
             });
-
-            if (this.onRemoteCursorUpdate) {
-                this.onRemoteCursorUpdate(cursors);
-            }
         });
     }
 
@@ -116,79 +96,89 @@ class RealtimeSync {
 
         const colors = ['#6C5CE7', '#E17055', '#00B894', '#FDCB6E', '#0984E3', '#E84393'];
         const color = colors[uid.charCodeAt(0) % colors.length];
+        const name = Security.escapeHtml(data.nickname || 'Аноним');
 
         el.innerHTML = `
             <svg class="remote-cursor-icon" width="16" height="16" viewBox="0 0 16 16">
                 <polygon points="0,0 0,12 4,9 7,15 9,14 6,8 11,8" fill="${color}"/>
             </svg>
-            <span class="remote-cursor-name" style="background: ${color}">
-                ${data.nickname || 'Аноним'}
-            </span>
+            <span class="remote-cursor-name" style="background: ${color}">${name}</span>
         `;
-
         return el;
     }
 
     _setupOnlineUsers() {
         this.firebase.onOnlineUsers(users => {
-            if (this.onOnlineUsersChange) {
-                this.onOnlineUsersChange(users);
-            }
+            if (this.onOnlineUsersChange) this.onOnlineUsersChange(users);
         });
     }
 
     _setupCanvasCallbacks() {
-        // При завершении мазка
         this.canvas.onStrokeComplete = async (stroke) => {
-            // Проверяем лимит
-            if (this.currentStrokeCount >= this.strokeLimit) {
-                if (this.onLimitReached) {
-                    this.onLimitReached();
-                }
-                // Откатываем мазок
+            // Rate limit
+            if (!Security.checkStrokeSpam(this.userId)) {
                 this.canvas.undo();
                 return;
             }
 
-            // Добавляем userId
+            // Расчёт стоимости краски
+            const cost = Security.calculatePaintCost(stroke);
+
+            // Проверка лимита
+            if (this.paintUsed + cost > this.paintLimit) {
+                if (this.onLimitReached) this.onLimitReached();
+                this.canvas.undo();
+                return;
+            }
+
+            // Проверка перекрытия чужих рисунков
+            if (Security.isOverlappingOtherUser(stroke, this.canvas.strokes, this.userId)) {
+                // Показываем предупреждение
+                const warning = document.getElementById('canvasWarning');
+                if (warning) {
+                    warning.classList.remove('hidden');
+                    setTimeout(() => warning.classList.add('hidden'), 3000);
+                }
+                this.canvas.undo();
+                return;
+            }
+
             stroke.userId = this.userId;
-            stroke.nickname = this.userProfile?.nickname || 'Аноним';
+            stroke.nickname = Security.sanitizeNickname(this.userProfile?.nickname || 'Аноним');
+            stroke.paintCost = cost;
 
             try {
-                // Сохраняем в Firebase
                 const saved = await this.firebase.addStroke(stroke);
-                // Обновляем ID мазка в локальном массиве
-                const localStroke = this.canvas.strokes[this.canvas.strokes.length - 1];
-                if (localStroke) localStroke.id = saved.id;
+                const local = this.canvas.strokes[this.canvas.strokes.length - 1];
+                if (local) local.id = saved.id;
 
-                // Инкрементируем лимит
-                await this.firebase.incrementStrokeCount(this.userId);
-                this.currentStrokeCount++;
+                // Обновляем использование краски
+                this.paintUsed += cost;
+                await this.firebase.updateUserProfile(this.userId, {
+                    dailyStrokes: this.paintUsed
+                });
 
-                // Калбэк для обновления UI
                 if (this.onStrokeCountChange) {
-                    this.onStrokeCountChange(this.currentStrokeCount, this.strokeLimit);
+                    this.onStrokeCountChange(this.paintUsed, this.paintLimit);
                 }
             } catch (error) {
-                console.error('[Sync] Ошибка сохранения мазка:', error);
+                console.error('[Sync] Ошибка сохранения:', error);
             }
         };
 
-        // При undo
         this.canvas.onStrokeUndo = async (strokeId) => {
             if (strokeId) {
                 try {
                     await this.firebase.undoStroke(strokeId);
-                } catch (error) {
-                    console.error('[Sync] Ошибка undo:', error);
+                } catch (e) {
+                    console.error('[Sync] Undo error:', e);
                 }
             }
         };
 
-        // При движении курсора
         this.canvas.onCursorMove = (x, y) => {
             const now = Date.now();
-            if (now - this._lastCursorUpdate < this._cursorUpdateInterval) return;
+            if (now - this._lastCursorUpdate < this._cursorInterval) return;
             this._lastCursorUpdate = now;
 
             this.firebase.updateCursor(this.userId, {
@@ -200,17 +190,14 @@ class RealtimeSync {
 
     getStrokeInfo() {
         return {
-            count: this.currentStrokeCount,
-            limit: this.strokeLimit,
-            percent: (this.currentStrokeCount / this.strokeLimit) * 100
+            count: this.paintUsed,
+            limit: this.paintLimit,
+            percent: (this.paintUsed / this.paintLimit) * 100
         };
     }
 
     destroy() {
-        this._unsubscribers.forEach(unsub => {
-            if (typeof unsub === 'function') unsub();
-        });
-        // Удаляем курсор
-        this.firebase.db.ref(`cursors/${this.userId}`).remove();
+        this._unsubscribers.forEach(u => { if (typeof u === 'function') u(); });
+        this.firebase.db?.ref(`cursors/${this.userId}`).remove();
     }
 }
