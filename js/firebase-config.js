@@ -6,6 +6,7 @@
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBqbexDcbA_g82ZTlXCur6O8Ap9kGkLt6A",
   authDomain: "canvaschat-52708.firebaseapp.com",
+  databaseURL: "https://canvaschat-52708-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "canvaschat-52708",
   storageBucket: "canvaschat-52708.firebasestorage.app",
   messagingSenderId: "35319703560",
