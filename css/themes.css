@@ -1,0 +1,241 @@
+/* ========================================
+   CanvasChat — Theme System
+   ======================================== */
+
+/* Светлая тема (по умолчанию) */
+[data-theme="light"] {
+    --primary: #6C5CE7;
+    --primary-light: #A29BFE;
+    --primary-dark: #5A4BD1;
+    --accent-green: #00B894;
+    --accent-red: #E17055;
+    --accent-yellow: #FDCB6E;
+    --accent-blue: #0984E3;
+    --accent-pink: #E84393;
+
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8F9FE;
+    --bg-tertiary: #F0F1F6;
+    --bg-canvas: #F8F9FE;
+
+    --text-primary: #1A1A2E;
+    --text-secondary: #4A4A68;
+    --text-tertiary: #8B8BA8;
+    --text-inverse: #FFFFFF;
+
+    --border-light: rgba(0, 0, 0, 0.06);
+    --border-medium: rgba(0, 0, 0, 0.1);
+
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.16);
+
+    --canvas-grid: rgba(0, 0, 0, 0.04);
+    --toolbar-bg: rgba(255, 255, 255, 0.95);
+    --topbar-bg: rgba(255, 255, 255, 0.9);
+    --sidebar-bg: rgba(255, 255, 255, 0.95);
+}
+
+/* Тёмная тема */
+[data-theme="dark"] {
+    --primary: #A29BFE;
+    --primary-light: #B8B3FF;
+    --primary-dark: #6C5CE7;
+    --accent-green: #55EFC4;
+    --accent-red: #FAB1A0;
+    --accent-yellow: #FFEAA7;
+    --accent-blue: #74B9FF;
+    --accent-pink: #FD79A8;
+
+    --bg-primary: #13111C;
+    --bg-secondary: #1A1826;
+    --bg-tertiary: #222030;
+    --bg-canvas: #16141F;
+
+    --text-primary: #F0F0F5;
+    --text-secondary: #A0A0B8;
+    --text-tertiary: #6B6B82;
+    --text-inverse: #13111C;
+
+    --border-light: rgba(255, 255, 255, 0.06);
+    --border-medium: rgba(255, 255, 255, 0.1);
+
+    --glass-bg: rgba(26, 24, 38, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
+    --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.45);
+
+    --canvas-grid: rgba(255, 255, 255, 0.03);
+    --toolbar-bg: rgba(26, 24, 38, 0.95);
+    --topbar-bg: rgba(19, 17, 28, 0.9);
+    --sidebar-bg: rgba(26, 24, 38, 0.95);
+}
+
+/* Плавный переход темы */
+body,
+.app-topbar,
+.toolbar,
+.sidebar-right,
+.canvas-container,
+.glass-card,
+.modal,
+.tool-btn,
+.btn-icon,
+.form-group input,
+.chat-input,
+.search-input,
+.friend-item,
+.message-bubble,
+.profile-dropdown {
+    transition: background-color 0.3s ease,
+                color 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+/* Темная тема: дополнительные стили */
+[data-theme="dark"] .app-topbar {
+    background: var(--topbar-bg);
+    backdrop-filter: blur(20px);
+    border-bottom-color: var(--border-light);
+}
+
+[data-theme="dark"] .toolbar {
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(20px);
+    border-right-color: var(--border-light);
+}
+
+[data-theme="dark"] .sidebar-right {
+    background: var(--sidebar-bg);
+    backdrop-filter: blur(20px);
+    border-left-color: var(--border-light);
+}
+
+[data-theme="dark"] .canvas-container {
+    background: var(--bg-canvas);
+}
+
+[data-theme="dark"] .tool-btn:hover {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .tool-btn.active {
+    background: var(--primary);
+    color: var(--text-inverse);
+}
+
+[data-theme="dark"] .profile-dropdown {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .chat-input,
+[data-theme="dark"] .search-input,
+[data-theme="dark"] .add-friend-form input {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: transparent;
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .chat-input:focus,
+[data-theme="dark"] .search-input:focus {
+    border-color: var(--primary);
+    background: var(--bg-primary);
+}
+
+[data-theme="dark"] .message.other .message-bubble {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .friend-item:hover {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .btn-ghost:hover {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .btn-outline {
+    border-color: var(--border-medium);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .online-users-bar {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+}
+
+[data-theme="dark"] .modal {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+}
+
+[data-theme="dark"] .plan-card {
+    background: var(--bg-primary);
+    border-color: var(--border-light);
+}
+
+[data-theme="dark"] .loading-screen {
+    background: var(--bg-primary);
+}
+
+/* ========================================
+   Toggle Switch
+   ======================================== */
+
+.toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: var(--primary);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+}
