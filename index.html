@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanvasChat — Рисуй вместе в реальном времени</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/landing.css">
+</head>
+<body class="landing-body">
+
+    <!-- Навигация -->
+    <nav class="landing-nav">
+        <div class="nav-left">
+            <div class="logo-group">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+                        <path d="M8 20C8 20 12 12 16 12C20 12 24 20 24 20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="16" cy="14" r="3" fill="white" opacity="0.9"/>
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                                <stop stop-color="#6C5CE7"/>
+                                <stop offset="1" stop-color="#A29BFE"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">CanvasChat</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="#features" class="nav-link">Возможности</a>
+            <a href="#how" class="nav-link">Как это работает</a>
+            <button class="btn-ghost" id="openLoginBtn">Войти</button>
+            <button class="btn-primary" id="openRegisterBtn">Начать бесплатно</button>
+        </div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- Мобильное меню -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#features" class="mobile-link">Возможности</a>
+        <a href="#how" class="mobile-link">Как это работает</a>
+        <button class="btn-ghost w-full" id="openLoginBtnMob">Войти</button>
+        <button class="btn-primary w-full" id="openRegisterBtnMob">Начать бесплатно</button>
+    </div>
+
+    <!-- Hero секция -->
+    <section class="hero">
+        <div class="hero-bg-effects">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                <span>Новый способ общения через творчество</span>
+            </div>
+            <h1 class="hero-title">
+                Рисуйте <span class="gradient-text">вместе</span><br>
+                в реальном времени
+            </h1>
+            <p class="hero-subtitle">
+                Общий бесконечный холст, чат, друзья — всё в одном месте.
+                Создавайте совместные шедевры с людьми по всему миру.
+            </p>
+            <div class="hero-actions">
+                <button class="btn-primary btn-lg" id="heroStartBtn">
+                    <span>Начать рисовать</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="btn-outline btn-lg" id="heroDemoBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <polygon points="6,4 16,10 6,16" fill="currentColor"/>
+                    </svg>
+                    <span>Смотреть демо</span>
+                </button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-num" id="statUsers">0</span>
+                    <span class="stat-label">Пользователей</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-num" id="statStrokes">0</span>
+                    <span class="stat-label">Мазков нарисовано</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-num">∞</span>
+                    <span class="stat-label">Возможностей</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-canvas-preview">
+            <div class="preview-window">
+                <div class="preview-topbar">
+                    <div class="preview-dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <span class="preview-title">CanvasChat — Общий холст</span>
+                </div>
+                <canvas id="demoCanvas" class="demo-canvas"></canvas>
+                <div class="preview-cursors">
+                    <div class="fake-cursor cursor-1">
+                        <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="0,0 0,12 4,9 7,15 9,14 6,8 11,8" fill="#6C5CE7"/></svg>
+                        <span class="cursor-label">Анна</span>
+                    </div>
+                    <div class="fake-cursor cursor-2">
+                        <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="0,0 0,12 4,9 7,15 9,14 6,8 11,8" fill="#E17055"/></svg>
+                        <span class="cursor-label">Максим</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Возможности -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2 class="section-title">Всё, что нужно для<br><span class="gradient-text">совместного творчества</span></h2>
+            <p class="section-desc">Мощные инструменты рисования, мгновенная синхронизация и удобное общение</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card glass-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #6C5CE7, #A29BFE);">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M4 24L10 18L16 22L24 8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3>Рисование в реальном времени</h3>
+                <p>Каждый мазок мгновенно виден всем участникам. Нулевая задержка, полная синхронизация.</p>
+            </div>
+            <div class="feature-card glass-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #00B894, #55EFC4);">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="10" cy="10" r="5" stroke="white" stroke-width="2"/>
+                        <circle cx="18" cy="18" r="5" stroke="white" stroke-width="2"/>
+                        <path d="M14 10C14 13 14 15 14 18" stroke="white" stroke-width="2" stroke-dasharray="2 2"/>
+                    </svg>
+                </div>
+                <h3>Система друзей</h3>
+                <p>Добавляйте друзей, создавайте приватные холсты, общайтесь в личных чатах.</p>
+            </div>
+            <div class="feature-card glass-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #E17055, #FAB1A0);">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect x="4" y="8" width="20" height="14" rx="3" stroke="white" stroke-width="2"/>
+                        <path d="M4 12L14 18L24 12" stroke="white" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3>Встроенный чат</h3>
+                <p>Текстовый чат с историей сообщений. Обсуждайте идеи прямо на холсте.</p>
+            </div>
+            <div class="feature-card glass-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #FDCB6E, #F39C12);">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect x="3" y="3" width="10" height="10" rx="2" stroke="white" stroke-width="2"/>
+                        <rect x="15" y="3" width="10" height="10" rx="2" stroke="white" stroke-width="2"/>
+                        <rect x="3" y="15" width="10" height="10" rx="2" stroke="white" stroke-width="2"/>
+                        <rect x="15" y="15" width="10" height="10" rx="2" stroke="white" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3>Бесконечный холст</h3>
+                <p>Масштабируйте, перемещайте, рисуйте без границ. Пространство не ограничено.</p>
+            </div>
+            <div class="feature-card glass-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #0984E3, #74B9FF);">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 4V24M4 14H24" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="14" cy="14" r="10" stroke="white" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3>Инструменты художника</h3>
+                <p>Кисти, ластик, фигуры, текст, заливка, палитра — полный набор для творчества.</p>
+            </div>
+            <div class="feature-card glass-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #E84393, #FD79A8);">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 4L17 10L24 11L19 16L20 23L14 20L8 23L9 16L4 11L11 10Z" stroke="white" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+                <h3>Premium дизайн</h3>
+                <p>Интерфейс уровня Apple и Figma. Каждая деталь продумана до пикселя.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как это работает -->
+    <section class="how-it-works" id="how">
+        <div class="section-header">
+            <h2 class="section-title">Начните за <span class="gradient-text">30 секунд</span></h2>
+            <p class="section-desc">Три простых шага к совместному творчеству</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Создайте аккаунт</h3>
+                    <p>Быстрая регистрация — только никнейм и email. Войдите через Google одним кликом.</p>
+                </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Найдите друзей</h3>
+                    <p>Добавляйте друзей по никнейму. Создавайте приватные или общие сессии рисования.</p>
+                </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Рисуйте вместе</h3>
+                    <p>Выберите инструмент и начинайте! Все изменения видны мгновенно в реальном времени.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="cta-card glass-card">
+            <h2>Готовы рисовать <span class="gradient-text">вместе</span>?</h2>
+            <p>Присоединяйтесь к сообществу CanvasChat и создавайте шедевры с людьми по всему миру.</p>
+            <button class="btn-primary btn-lg" id="ctaStartBtn">
+                Создать аккаунт бесплатно
+            </button>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="landing-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo-group">
+                    <div class="logo-icon small">
+                        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+                            <rect width="32" height="32" rx="8" fill="url(#logoGrad2)"/>
+                            <path d="M8 20C8 20 12 12 16 12C20 12 24 20 24 20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="16" cy="14" r="3" fill="white" opacity="0.9"/>
+                            <defs>
+                                <linearGradient id="logoGrad2" x1="0" y1="0" x2="32" y2="32">
+                                    <stop stop-color="#6C5CE7"/>
+                                    <stop offset="1" stop-color="#A29BFE"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <span class="logo-text">CanvasChat</span>
+                </div>
+                <p class="footer-tagline">Проект компании <a href="https://nuller.ru" target="_blank" rel="noopener">NULLER</a></p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Политика конфиденциальности</a>
+                <a href="#">Условия использования</a>
+                <a href="mailto:support@nuller.ru">Поддержка</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 CanvasChat. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- Модальное окно авторизации -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal glass-card">
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="login">Вход</button>
+                <button class="modal-tab" data-tab="register">Регистрация</button>
+            </div>
+
+            <!-- Вход -->
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary w-full">Войти</button>
+                <div class="auth-divider">
+                    <span>или</span>
+                </div>
+                <button type="button" class="btn-google" id="googleLoginBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    <span>Войти через Google</span>
+                </button>
+                <div class="auth-error" id="loginError"></div>
+            </form>
+
+            <!-- Регистрация -->
+            <form class="auth-form hidden" id="registerForm">
+                <div class="form-group">
+                    <label for="regNickname">Никнейм</label>
+                    <input type="text" id="regNickname" placeholder="Ваш никнейм" required minlength="2" maxlength="20" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" placeholder="your@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Пароль</label>
+                    <input type="password" id="regPassword" placeholder="Минимум 6 символов" required minlength="6" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="regPasswordConfirm">Повторите пароль</label>
+                    <input type="password" id="regPasswordConfirm" placeholder="••••••••" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-primary w-full">Зарегистрироваться</button>
+                <div class="auth-divider">
+                    <span>или</span>
+                </div>
+                <button type="button" class="btn-google" id="googleRegBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    <span>Регистрация через Google</span>
+                </button>
+                <div class="auth-error" id="registerError"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Демо модальное окно -->
+    <div class="modal-overlay" id="demoModal">
+        <div class="modal glass-card modal-lg">
+            <button class="modal-close" id="demoCloseBtn">&times;</button>
+            <h2 class="modal-title">Демо совместного рисования</h2>
+            <p class="modal-desc">Наблюдайте, как два виртуальных пользователя рисуют одновременно</p>
+            <canvas id="demoModalCanvas" class="demo-modal-canvas"></canvas>
+            <button class="btn-primary" id="demoToRegister">Попробовать самому</button>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Анимация демо-канваса
+        (function() {
+            const canvas = document.getElementById('demoCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                w = canvas.width = rect.width;
+                h = canvas.height = rect.height;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            const colors = ['#6C5CE7', '#E17055', '#00B894', '#FDCB6E', '#0984E3', '#E84393'];
+            let strokes = [];
+            let time = 0;
+
+            function addStroke() {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const points = [];
+                const startX = Math.random() * w;
+                const startY = Math.random() * h;
+                const len = 20 + Math.floor(Math.random() * 40);
+                let x = startX, y = startY;
+                for (let i = 0; i < len; i++) {
+                    x += (Math.random() - 0.5) * 8;
+                    y += (Math.random() - 0.5) * 8;
+                    points.push({ x, y });
+                }
+                strokes.push({
+                    points, color,
+                    width: 2 + Math.random() * 4,
+                    progress: 0,
+                    speed: 0.5 + Math.random() * 1.5
+                });
+                if (strokes.length > 50) strokes.shift();
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#fafafa';
+                ctx.fillRect(0, 0, w, h);
+
+                // Grid
+                ctx.strokeStyle = '#f0f0f0';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < w; x += 20) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+                }
+                for (let y = 0; y < h; y += 20) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                }
+
+                strokes.forEach(s => {
+                    if (s.progress >= s.points.length) return;
+                    s.progress = Math.min(s.progress + s.speed, s.points.length);
+                    const end = Math.floor(s.progress);
+                    if (end < 2) return;
+                    ctx.beginPath();
+                    ctx.strokeStyle = s.color;
+                    ctx.lineWidth = s.width;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.moveTo(s.points[0].x, s.points[0].y);
+                    for (let i = 1; i < end; i++) {
+                        ctx.lineTo(s.points[i].x, s.points[i].y);
+                    }
+                    ctx.stroke();
+                });
+
+                time++;
+                if (time % 60 === 0) addStroke();
+                requestAnimationFrame(draw);
+            }
+            addStroke();
+            addStroke();
+            addStroke();
+            draw();
+        })();
+
+        // Статистика анимация
+        function animateCounter(el, target, suffix = '') {
+            let current = 0;
+            const step = Math.max(1, Math.floor(target / 60));
+            const interval = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                el.textContent = current.toLocaleString('ru-RU') + suffix;
+            }, 16);
+        }
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    animateCounter(document.getElementById('statUsers'), 1247);
+                    animateCounter(document.getElementById('statStrokes'), 84930);
+                    observer.disconnect();
+                }
+            });
+        });
+        observer.observe(document.querySelector('.hero-stats'));
+
+        // Курсоры анимация
+        (function() {
+            const c1 = document.querySelector('.cursor-1');
+            const c2 = document.querySelector('.cursor-2');
+            if (!c1 || !c2) return;
+            let t = 0;
+            function moveCursors() {
+                t += 0.02;
+                const x1 = 30 + Math.sin(t * 1.1) * 25;
+                const y1 = 40 + Math.cos(t * 0.9) * 20;
+                const x2 = 60 + Math.sin(t * 0.8 + 2) * 20;
+                const y2 = 50 + Math.cos(t * 1.2 + 1) * 25;
+                c1.style.left = x1 + '%';
+                c1.style.top = y1 + '%';
+                c2.style.left = x2 + '%';
+                c2.style.top = y2 + '%';
+                requestAnimationFrame(moveCursors);
+            }
+            moveCursors();
+        })();
+
+        // Модальное окно авторизации
+        const authModal = document.getElementById('authModal');
+        const demoModal = document.getElementById('demoModal');
+
+        function openAuth(tab = 'login') {
+            authModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            switchTab(tab);
+        }
+        function closeAuth() {
+            authModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        function switchTab(tab) {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+        }
+
+        document.getElementById('openLoginBtn').onclick = () => openAuth('login');
+        document.getElementById('openRegisterBtn').onclick = () => openAuth('register');
+        document.getElementById('openLoginBtnMob')?.addEventListener('click', () => { openAuth('login'); document.getElementById('mobileMenu').classList.remove('active'); });
+        document.getElementById('openRegisterBtnMob')?.addEventListener('click', () => { openAuth('register'); document.getElementById('mobileMenu').classList.remove('active'); });
+        document.getElementById('heroStartBtn').onclick = () => openAuth('register');
+        document.getElementById('ctaStartBtn').onclick = () => openAuth('register');
+        document.getElementById('modalCloseBtn').onclick = closeAuth;
+        authModal.addEventListener('click', e => { if (e.target === authModal) closeAuth(); });
+
+        document.querySelectorAll('.modal-tab').forEach(t => {
+            t.onclick = () => switchTab(t.dataset.tab);
+        });
+
+        // Демо модалка
+        document.getElementById('heroDemoBtn').onclick = () => {
+            demoModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            startDemoAnimation();
+        };
+        document.getElementById('demoCloseBtn').onclick = () => {
+            demoModal.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+        demoModal.addEventListener('click', e => { if (e.target === demoModal) { demoModal.classList.remove('active'); document.body.style.overflow = ''; } });
+        document.getElementById('demoToRegister').onclick = () => {
+            demoModal.classList.remove('active');
+            openAuth('register');
+        };
+
+        function startDemoAnimation() {
+            const canvas = document.getElementById('demoModalCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth - 48;
+            canvas.height = 400;
+            ctx.fillStyle = '#fafafa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Simple animated drawing demo
+            let i = 0;
+            const w = canvas.width, h = canvas.height;
+            function drawFrame() {
+                if (i > 300) return;
+                i++;
+                // User A draws a flower
+                ctx.beginPath();
+                ctx.strokeStyle = '#6C5CE7';
+                ctx.lineWidth = 3;
+                const a1 = i * 0.1;
+                const r1 = 40 + Math.sin(i * 0.05) * 20;
+                ctx.arc(w * 0.3, h * 0.5, r1, a1, a1 + 0.3);
+                ctx.stroke();
+
+                // User B draws a sun
+                ctx.beginPath();
+                ctx.strokeStyle = '#E17055';
+                ctx.lineWidth = 3;
+                const a2 = i * 0.08;
+                ctx.arc(w * 0.7, h * 0.4, 30, a2, a2 + 0.4);
+                ctx.stroke();
+
+                requestAnimationFrame(drawFrame);
+            }
+            drawFrame();
+        }
+
+        // Мобильное меню
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('active');
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('mobileMenu').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
