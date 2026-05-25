@@ -3,13 +3,11 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Инициализация Firebase
     firebaseService.init().then(() => {
-        // Проверяем, авторизован ли пользователь
         firebaseService.onAuthStateChanged(user => {
-            if (user && window.location.pathname.includes('index')) {
-                // Уже авторизован — переход в приложение
-                window.location.href = 'app.html';
+            if (user) {
+                // ИСПРАВЛЕНО: новый путь
+                window.location.href = 'app/';
             }
         });
     }).catch(err => {
@@ -28,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 errorEl.classList.remove('visible');
                 await firebaseService.loginWithEmail(email, password);
-                window.location.href = 'app.html';
+                // ИСПРАВЛЕНО
+                window.location.href = 'app/';
             } catch (error) {
                 errorEl.textContent = getAuthErrorMessage(error.code);
                 errorEl.classList.add('visible');
@@ -62,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 errorEl.classList.remove('visible');
                 await firebaseService.registerWithEmail(email, password, nickname);
-                window.location.href = 'app.html';
+                // ИСПРАВЛЕНО
+                window.location.href = 'app/';
             } catch (error) {
                 errorEl.textContent = getAuthErrorMessage(error.code);
                 errorEl.classList.add('visible');
@@ -70,14 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Google вход
     document.getElementById('googleLoginBtn')?.addEventListener('click', googleAuth);
     document.getElementById('googleRegBtn')?.addEventListener('click', googleAuth);
 
     async function googleAuth() {
         try {
             await firebaseService.loginWithGoogle();
-            window.location.href = 'app.html';
+            // ИСПРАВЛЕНО
+            window.location.href = 'app/';
         } catch (error) {
             console.error('[Auth] Google auth error:', error);
             const errorEl = document.getElementById('loginError') || document.getElementById('registerError');
